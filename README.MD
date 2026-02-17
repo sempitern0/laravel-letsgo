@@ -1,51 +1,52 @@
-# 🚀 Laravel Let's Go - Entorno de desarrollo
-Este es un entorno de desarrollo profesional basado en [Docker](https://www.docker.com/), diseñado para proyectos **PHP/Laravel**, pero lo suficientemente flexible para cualquier aplicación web basada en PHP. 
+# 🚀 Laravel Let's Go - Development Environment
+[Leer en Español 🇪🇸](README.es.MD)
 
-Cuenta con soporte para múltiples bases de datos *(MySQL/Postgres)* mediante los [perfiles de docker](https://docs.docker.com/compose/how-tos/profiles/), Proxy HTTPS con certificados locales, Redis, [Mailpit](https://mailpit.axllent.org/) y herramientas de gestión de datos *(phpMyAdmin/pgAdmin)*.
+This is a professional development environment based on [Docker](https://www.docker.com/), designed for **PHP/Laravel** projects, yet flexible enough for any PHP-based web application.
 
-## 📋 Requisitos Previos
+It features support for multiple databases *(MySQL/Postgres)* via [Docker profiles](https://docs.docker.com/compose/how-tos/profiles/), HTTPS Proxy with local certificates, Redis, [Mailpit](https://mailpit.axllent.org/), and data management tools *(phpMyAdmin/pgAdmin)*.
 
-Asegúrate de tener instaladas las siguientes herramientas según tu sistema operativo:
+## 📋 Prerequisites
+
+Ensure you have the following tools installed according to your operating system:
 
 ### 1. Docker & Docker Compose
-En su [página oficial](https://docs.docker.com/get-started/get-docker/) tienen disponibles las guías de instalación para cada sistema operativo.
+Installation guides for each OS are available on their [official website](https://docs.docker.com/get-started/get-docker/).
 
-- [Instalación de Docker en Windows](https://docs.docker.com/desktop/setup/install/windows-install/)
-- [Instalación de Docker en Linux](https://docs.docker.com/desktop/setup/install/linux/)
-- [Instalación de Docker en MacOS](https://docs.docker.com/desktop/setup/install/mac-install/)
+- [Install Docker on Windows](https://docs.docker.com/desktop/setup/install/windows-install/)
+- [Install Docker on Linux](https://docs.docker.com/desktop/setup/install/linux/)
+- [Install Docker on MacOS](https://docs.docker.com/desktop/setup/install/mac-install/)
 
-### 2. mkcert (Para HTTPS Local)
+### 2. mkcert (For Local HTTPS)
 
-Esta herramienta crea certificados SSL válidos y confiables para tu navegador, sigue las instrucciones en su [repositorio oficial]((https://github.com/FiloSottile/mkcert)) para la instalación en tu sistema operativo.
+This tool creates valid and trusted SSL certificates for your browser. Follow the instructions in the [official repository](https://github.com/FiloSottile/mkcert) for installation.
 
-*Este repositorio viene definido con el dominio `myapp.local`, si quieres otro nombre de dominio deberás cambiarlo en el archivo de configuración de nginx `images/nginx/proxy.conf` y a la hora de generar los certificados.*
+*This repository is pre-configured with the `myapp.local` domain. If you wish to use a different domain name, you must change it in the Nginx configuration file `images/nginx/proxy.conf` and when generating the certificates.*
 
 ```bash
-# Instalar la Autoridad de Certificación local (Solo la primera vez)
+# Install the local CA (First time only)
 mkcert -install
 
-# Generar los certificados, usa la raíz de este proyecto a la hora de lanzar el comando.
+# Generate certificates - run this command from the project root.
 mkcert -key-file images/nginx/certs/myapp.key -cert-file images/nginx/certs/myapp.crt myapp.local
 ```
 
-#### Configurar el Host local
-Debes decirle a tu sistema que `myapp.local` apunta a tu máquina. Edita tu archivo host segun tu SO:
+## Configure Local Host
+You must tell your system that myapp.local points to your machine. Edit your hosts file according to your OS:
 
 - Windows: `C:\Windows\System32\drivers\etc\hosts`
 - Mac/Linux: `/etc/hosts`
 
-
 ```bash
-# Archivo hosts
+# Hosts file
 127.0.0.1  myapp.local
 ```
 
-## Configurar el archivo .env
-Duplica el archivo `.env.example` que encontrarás en la raíz de este proyecto y renombralo a `.env`, es importante que tenga este nombre ya que Docker lo lee por defecto sin necesidad de definir su path de forma manual en los archivos de configuracion.
+## Configure the .env file
+Duplicate the .env.example file found in the project root and rename it to .env. This name is important as Docker reads it by default.
 
-La propiedad `COMPOSE_PROFILES` permite levantar la base de datos `mysql` o `postgres` segun el perfil que selecciones. Si quieres levantar ambas separalas por comas tal que asi `COMPOSE_PROFILES=mysql,postgres`.
+The `COMPOSE_PROFILES` property allows you to spin up mysql or postgres depending on the selected profile. To launch both, separate them with commas: `COMPOSE_PROFILES=mysql,postgres`
 
-La propiedad `APPLICATION_FOLDER` define el path hacia la carpeta donde está tu proyecto de laravel. Esta carpeta sera servida por nginx.
+The `APPLICATION_FOLDER` property defines the path to your Laravel project folder. This folder will be served by Nginx.
 
 ```nginx
 COMPOSE_PROFILES=mysql #postgres
@@ -55,10 +56,10 @@ USER_UID=1000
 USER_GID=1000
 
 CONTAINER_PREFIX=laravel_app
-APPLICATION_FOLDER=LARAVEL_FOLDER_HERE # Your application where laravel files are.
+APPLICATION_FOLDER=LARAVEL_FOLDER_HERE # Your application path
 DOCKER_RESTART_POLICY=no
 
-## This credentials are local environment oriented - DON'T USE ON PRODUCTION!
+## These credentials are local environment oriented - DO NOT USE IN PRODUCTION!
 DB_NAME=laravel_db
 DB_EMAIL=admin@admin.com
 DB_USER=admin
@@ -69,80 +70,79 @@ DB_PORT=3306
 
 REDIS_PASSWORD=secret
 ```
+## Build and Start the Environment
+Once all properties are configured and certificates are created, proceed to build and start the containers.
 
-## Construir y levantar el entorno
-Una vez tengas todas las propiedades configuradas y los certificados creados, procedemos a construir y levantar los contenedores.
-
-Para construir las imágenes y levantar los contenedores , ejecuta el siguiente comando en tu terminal:
+To build the images and start the containers, run the following command in your terminal:
 
 ```bash
-
 docker compose up --build
 
-# Aplica el flag -d si lo quieres en modo detached (segundo plano) para tener esa sesión de terminal liberada.
+# Add the -d flag to run in detached mode (background)
 docker compose up -d --build
 ```
 
-## Ejecutar comandos de laravel
-Si necesitas ejecutar los comandos habituales de laravel puedes acceder al contenedor `laravel_app` con:
+
+## Running Laravel Commands
+If you need to run standard Laravel commands, you can access the laravel_app container using:
 
 ```bash
-docker compose exec -it laravel_app <TU_COMANDO>
+docker compose exec -it laravel_app <YOUR_COMMAND>
 
-## Ejemplo
+## Example
 docker compose exec -it laravel_app php artisan tinker
 ```
 
-*El flag --build asegura que cualquier cambio realizado en los archivos de configuración de images/ o en las variables de entorno se aplique correctamente reconstruyendo las imágenes necesarias.*
+*The --build flag ensures that any changes made to configuration files in images/ or environment variables are correctly applied by rebuilding the necessary images.*
 
-## Detener los servicios
-Dependiendo de lo que necesites hacer, tienes varias opciones para detener el entorno:
 
-### Detener los contenedores
-Utiliza este comando si quieres liberar RAM pero planeas volver pronto. Mantiene el estado de los contenedores.
+## Stopping Services
+Depending on your needs, you have several options to stop the environment:
+
+### Stop Containers
+Use this command to free up RAM but keep the container state.
 
 ```bash
 docker compose stop
 ```
 
-### Bajar los servicios
-Detiene y elimina los contenedores y las redes internas de Docker. Los datos de la base de datos se mantienen seguros en los volúmenes persistentes.
+### Shut Down Services
+Stops and removes containers and internal Docker networks. Database data remains safe in persistent volumes.
 
 ```bash
 docker compose down
 ```
 
-### Reset total
-Este comando elimina los contenedores y borra todos los datos de la base de datos, correos de `Mailpit` y datos de `Redis`. Úsalo solo si quieres empezar el proyecto desde cero absoluto.
+### Total Reset
+This command removes containers and deletes all data from the database, Mailpit emails, and Redis. Use only if you want to start the project from scratch.
 
 ```bash
 docker compose down -v
 ```
 
-## Configurar el .env de Laravel para conectarse a los servicios
+## Configure Laravel's .env to connect to services
 
 ```nginx
-# Opcional si has definido un dominio personalizado
-APP_URL=https://myapp.local #http://localhost:8000
+# Optional if you defined a custom domain
+APP_URL=[https://myapp.local](https://myapp.local) #http://localhost:8000
 
-
-DB_CONNECTION=mysql # usa pgsql si prefieres utilizar el driver de postgres
-DB_HOST=mysql_db # usa postgres_db si quieres conectarte al contenedor de postgres
+DB_CONNECTION=mysql # use pgsql for postgres driver
+DB_HOST=mysql_db # use postgres_db for postgres container
 DB_PORT=3306
 
-# Los siguientes datos deben ser iguales que los que has definido en el .env de configuracion de docker
+# These must match your Docker .env configuration
 DB_DATABASE=laravel_db
 DB_USERNAME=admin
 DB_PASSWORD=secret
 
 REDIS_CLIENT=phpredis
-REDIS_HOST=redis # nombre del contenedor de redis
+REDIS_HOST=redis
 REDIS_PASSWORD=null
 REDIS_PORT=6379
 
 MAIL_MAILER=smtp
 MAIL_SCHEME=null
-MAIL_HOST=mailpit # nombre del contenedor de mailpit
+MAIL_HOST=mailpit
 MAIL_PORT=1025
 MAIL_USERNAME=null
 MAIL_PASSWORD=null
@@ -150,13 +150,12 @@ MAIL_FROM_ADDRESS="laravel@example.com"
 MAIL_FROM_NAME="${APP_NAME}"
 ```
 
-## 🔗 Servicios GUI disponibles
+# 🔗 Available GUI Services
+You can substitute your custom local domain `myapp.local` with `localhost` if preferred.
 
-Puedes sustituir tu dominio local personalizado (`myapp.local`) por `localhost` si lo prefieres para acceder a estos servicios. 
+*> **Note:** `phpMyAdmin` and `pgAdmin` will only be available if you have activated the corresponding profile in your .`env` (mysql or postgres).*
 
-> **Nota:** `phpMyAdmin` y `pgAdmin` solo estarán disponibles si has activado el perfil correspondiente en tu `.env` (`mysql` o `postgres`).
-
-| Servicio | URL / Host | Puerto Local |
+| Service | URL / Host | Local port|
 | :--- | :--- | :--- |
 | **Web App (HTTPS)** | [https://myapp.local:8080](https://myapp.local:8080) | `8080` |
 | **Web App (HTTP)** | [http://myapp.local:8085](http://myapp.local:8085) | `8085` |
@@ -166,4 +165,5 @@ Puedes sustituir tu dominio local personalizado (`myapp.local`) por `localhost` 
 | **Redis Insight** | [http://myapp.local:5540](http://myapp.local:5540) | `5540` |
 
 ---
-Desarrollado con ❤️ para agilizar el despliegue local. ¡Happy coding! 🚀
+
+Developed with ❤️ to streamline local deployment. Happy coding! 🚀
