@@ -118,6 +118,8 @@ services:
       PGDATA: /var/lib/postgresql/data
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - laravel-app-network
 
   pgadmin:
     profiles: ["postgres"]
@@ -132,6 +134,8 @@ services:
       PGADMIN_LISTEN_PORT: 8080
     depends_on:
       - postgres_db
+    networks:
+      - laravel-app-network
 
   redis:
     image: redis:8.6.0
