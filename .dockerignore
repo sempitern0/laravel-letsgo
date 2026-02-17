@@ -1,37 +1,37 @@
-Packages
+**/node_modules
+**/vendor
 .build
+Packages
 
-src/vendor/**/test*
-src/vendor/**/tests*
-src/vendor/**/Tests*
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+*.env*
+images/
+!images/php/*.ini
+!images/nginx/*.conf
+!images/database/*.sql
+run
+run.ps1
 
-**/*node_modules
-
-**.git
 .idea
 .vscode
 .editorconfig
-**.gitignore
-**.gitattributes
-**.sass-cache
-*.env*
-src/composer.json
-
-*.config.js
-?ulpfile.js
-?untfile.js
-src/package.json
+**/.git
+**/.gitignore
+**/.gitattributes
+**/.sass-cache
+_ide_helper.php
+.phpunit.result.cache
 src/phpunit.xml
-readme.md
 phpspec.yml
 
-Dockerfile
-docker-compose.yml
-docker-compose-test-ci.yml
-docker-compose-staging.yml
-docker-compose-prod.yml
+# --- Documentación ---
+*.md
+LICENSE
 
-_ide_helper.php
-
-run
-run.ps1
+# --- Logs y Temporales ---
+**/storage/logs/*.log
+**/storage/framework/cache/data/*
+**/storage/framework/sessions/*
+**/storage/framework/views/*.php
