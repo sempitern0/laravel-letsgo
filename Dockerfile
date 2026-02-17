@@ -1,47 +1,51 @@
 FROM php:8.3-fpm
 
-ARG user
-ARG uid
+ARG USER
+ARG USER_UID
+ARG USER_GID
 
-RUN apk add --update --no-cache --virtual .build-deps \
-  autoconf \
-  nodejs \
-  npm \
-  automake \
-  g++ \
-  bash \
-  gcc \
-  make \
-  libzip-dev \
-  libpng-dev \
-  libonig-dev \
-  libxml2-dev \
-  zip \
-  unzip \
-  postgresql-dev \
-  postgresql-libs \
-  sqlite-dev \
-  mysql-client \
-  git \
-  curl
+# RUN apt update && apt install -y --no-install-recommends \
+#   zip \
+#   unzip \
+#   git \
+#   curl \
+#   autoconf \
+#   nodejs \
+#   npm \
+#   automake \
+#   g++ \
+#   bash \
+#   gcc \
+#   make \
+#   libzip-dev \
+#   libpng-dev \
+#   libonig-dev \
+#   libxml2-dev \
+#   libicu-dev \
+#   libpq-dev \
+#   libsqlite3-dev \
+#   default-mysql-client \
+#   default-mysql-client && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-RUN docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql
-RUN docker-php-ext-configure intl
 
-RUN docker-php-ext-install bcmath gd opcache zip intl pdo pdo_mysql mysqli pdo_pgsql pdo_sqlite pcntl mbstring exif
-RUN docker-php-ext-enable opcache
+# RUN docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql
+# RUN docker-php-ext-configure intl
+# RUN docker-php-ext-install bcmath gd opcache zip intl pdo pdo_mysql mysqli pdo_pgsql pdo_sqlite pcntl mbstring exif
+# RUN docker-php-ext-enable opcache
 
-# (Optional)
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+
+RUN install-php-extensions gd xdebug
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-RUN useradd -u $uid -ms /bin/bash -g www-data $user
+RUN useradd -u $USER_UID -ms /bin/bash -g www-data $USER
 
 COPY . /var/www
-COPY --chown=$user:www-data . /var/www
+COPY --chown=$USER:www-data . /var/www
 
-USER $user
+USER $USER
+WORKDIR /var/www
 
 EXPOSE 9000
 
