@@ -26,6 +26,8 @@ services:
       - <<: *services-volume
       - ./images/php/php.ini:/usr/local/etc/php/conf.d/custom.ini:ro
       - ./images/php/xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini:ro
+    depends_on:
+      - mysql_db
     networks:
       - laravel-app-network
 
@@ -45,6 +47,8 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
+    depends_on:
+      - laravel_app
     networks:
       - laravel-app-network
 
@@ -67,10 +71,29 @@ services:
     volumes:
       - db_data:/var/lib/mysql
     healthcheck:
+      # Passing the password via CLI may trigger a security warning in logs
       test: ["CMD", "mysqladmin", "ping", "-p${DB_USER_PASSWORD}"]
       retries: 3
       timeout: 10s
       interval: 30s
+    networks:
+      - laravel-app-network
+
+  phpmyadmin:
+    image: phpmyadmin:5.2.3-apache
+    container_name: laravel_phpmyadmin
+    restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
+    environment:
+      PMA_HOST: mysql_db
+      PMA_PORT: 3306
+      PMA_USER: "${DB_USER}"
+      PMA_PASSWORD: "${DB_USER_PASSWORD}"
+      PMA_ARBITRARY: 1
+      HIDE_PHP_VERSION: true
+    ports:
+      - "8383:80"
+    depends_on:
+      - mysql_db
     networks:
       - laravel-app-network
 
