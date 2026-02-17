@@ -38,6 +38,7 @@ ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/relea
 RUN install-php-extensions gd xdebug
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+COPY ./images/php/php.ini /usr/local/etc/php/conf.d/custom.ini
 
 RUN useradd -u $USER_UID -ms /bin/bash -g www-data $USER
 

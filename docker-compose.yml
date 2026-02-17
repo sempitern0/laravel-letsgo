@@ -18,6 +18,7 @@ services:
     restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
     volumes:
       - ./:/var/www
+      - ./images/php/xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini:ro
     networks:
       - laravel-app-network
 
