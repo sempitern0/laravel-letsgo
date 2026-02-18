@@ -36,6 +36,37 @@ services:
     networks:
       - laravel-app-network
 
+  queue_worker:
+    image: "${CONTAINER_PREFIX:-app}_laravel_app_image"
+    container_name: "${CONTAINER_PREFIX:-app}_queue_container"
+    restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
+    working_dir: /var/www
+    command: php artisan queue:work --verbose --tries=3 --timeout=90
+    stop_signal: SIGTERM # SIGTERM as the stop signal for graceful shutdown (especially for fpm-apache and fpm-nginx)
+    volumes:
+      - <<: *services-volume
+      - ./images/php/php.ini:/usr/local/etc/php/conf.d/custom.ini:ro
+    depends_on:
+      - laravel_app
+      - redis
+    networks:
+      - laravel-app-network
+
+  scheduler:
+    image: "${CONTAINER_PREFIX:-app}_laravel_app_image"
+    container_name: "${CONTAINER_PREFIX:-app}_scheduler_container"
+    restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
+    working_dir: /var/www
+    command: php artisan schedule:work
+    stop_signal: SIGTERM # SIGTERM as the stop signal for graceful shutdown (especially for fpm-apache and fpm-nginx)
+    volumes:
+      - <<: *services-volume
+      - ./images/php/php.ini:/usr/local/etc/php/conf.d/custom.ini:ro
+    depends_on:
+      - laravel_app
+    networks:
+      - laravel-app-network
+
   webserver:
     platform: linux/amd64
     image: nginx:alpine
@@ -91,6 +122,7 @@ services:
       SERVICE_NAME: mysql
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./images/database/my.cnf:/etc/mysql/conf.d/my.cnf:ro
     healthcheck:
       # Passing the password via CLI may trigger a security warning in logs
       test: ["CMD", "mysqladmin", "ping", "-p${DB_USER_PASSWORD}"]
@@ -111,6 +143,7 @@ services:
       PMA_USER: "${DB_USER}"
       PMA_PASSWORD: "${DB_USER_PASSWORD}"
       PMA_ARBITRARY: 1
+      UPLOAD_LIMIT: 1G
       HIDE_PHP_VERSION: true
     ports:
       - "8383:80"
