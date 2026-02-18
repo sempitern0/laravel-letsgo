@@ -84,6 +84,7 @@ docker compose up --build
 # Aplica el flag -d si lo quieres en modo detached (segundo plano) para tener esa sesión de terminal liberada.
 docker compose up -d --build
 ```
+*El flag --build asegura que cualquier cambio realizado en los archivos de configuración de images/ o en las variables de entorno se aplique correctamente reconstruyendo las imágenes necesarias.*
 
 ## Ejecutar comandos de laravel
 Si necesitas ejecutar los comandos habituales de laravel puedes acceder al contenedor `laravel_app` con:
@@ -95,7 +96,29 @@ docker compose exec -it laravel_app <TU_COMANDO>
 docker compose exec -it laravel_app php artisan tinker
 ```
 
-*El flag --build asegura que cualquier cambio realizado en los archivos de configuración de images/ o en las variables de entorno se aplique correctamente reconstruyendo las imágenes necesarias.*
+### Facilitar el proceso con Makefile
+Escribir y ejecutar el anterior comando es tedioso, por eso hay preparado un `Makefile` que habilita una serie de comandos simples para ejecutar tareas complejas.
+
+- **Mac/Linux:** Ya viene instalado por defecto en la mayoría de distribuciones.
+- **Windows:** No viene por defecto. La mejor forma de usarlo es a través de WSL2 *(Windows Subsystem for Linux)* o instalando `GnuWin32` Make si usan PowerShell clásico. `Git Bash` también suele integrarlo bien.
+
+Para la lista de todos los comandos disponibles consulta el archivo `Makefile`, he aquí los mas probables de usar:
+
+```bash
+make up
+make up-detached # Levanta los contenedores en segundo plano permitiendo seguir usando la sesión de la terminal
+make up-build # Levanta contenedores pero construye antes
+
+make down # Para los servicios activos
+
+make shell-app # Entrar al contenedor donde esta alojada la aplicación de Laravel.
+
+# Uso: make exec c="tu-comando-aqui"
+make exec c="php artisan migrate:fresh --seed"
+
+#...
+```
+
 
 ## Detener los servicios
 Dependiendo de lo que necesites hacer, tienes varias opciones para detener el entorno:

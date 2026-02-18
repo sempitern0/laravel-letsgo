@@ -81,6 +81,7 @@ docker compose up --build
 # Add the -d flag to run in detached mode (background)
 docker compose up -d --build
 ```
+*The --build flag ensures that any changes made to configuration files in images/ or environment variables are correctly applied by rebuilding the necessary images.*
 
 
 ## Running Laravel Commands
@@ -93,8 +94,29 @@ docker compose exec -it laravel_app <YOUR_COMMAND>
 docker compose exec -it laravel_app php artisan tinker
 ```
 
-*The --build flag ensures that any changes made to configuration files in images/ or environment variables are correctly applied by rebuilding the necessary images.*
+### Streamlining the process with Makefile
+Manually typing and executing Docker commands can be tedious. To simplify your workflow, a `Makefile` is provided with a set of shorthand commands for complex tasks.
 
+- **Mac/Linux:** Installed by default in most distributions.
+- **Windows:** Not included by default. The recommended way to use it is through `WSL2` *(Windows Subsystem for Linux)*. Alternatively, you can install `GnuWin32` Make for PowerShell or use `Git Bash`, which typically includes it.
+
+For a full list of available commands, please refer to the Makefile. Here are the most commonly used ones:
+
+```bash
+make up           # Start the containers
+make up-detached  # Start containers in the background, freeing up your terminal session
+make up-build     # Build and start the containers
+
+make down         # Stop and remove active services
+
+make shell-app    # Access the terminal inside the Laravel application container
+
+# Execute a specific command inside the app container
+# Usage: make exec c="your-command-here"
+make exec c="php artisan migrate:fresh --seed"
+
+# ...
+```
 
 ## Stopping Services
 Depending on your needs, you have several options to stop the environment:
