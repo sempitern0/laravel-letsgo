@@ -41,6 +41,48 @@ You must tell your system that myapp.local points to your machine. Edit your hos
 127.0.0.1  myapp.local
 ```
 
+### Configuring Laravel to serve files over HTTPS
+If you decide to use the HTTPS proxy for Nginx, you need to modify a few Laravel files as follows:
+
+```bash
+# Update the APP_URL environment variable in your .env file with your chosen domain name
+APP_URL=https://myapp.local
+```
+
+```php
+// Force the HTTPS scheme in the AppServiceProvider.php file
+// There are many ways to do this; this is a simple and effective one.
+  public function boot(): void {
+        if (str_contains(config('app.url'), 'https://')) {
+            URL::forceScheme('https');
+        }
+    }
+```
+
+```js
+// Añadir la configuracion de server en el archivo de configuration vite.config.js
+import { defineConfig } from 'vite';
+import laravel from 'laravel-vite-plugin';
+import tailwindcss from '@tailwindcss/vite';
+
+export default defineConfig({
+    //...
+    server: {
+        watch: {
+            ignored: ['**/storage/framework/views/**'],
+        },
+        host: '0.0.0.0',
+        hmr: {
+          host: "myapp.local", // Tu host local custom
+      },
+        https: true,
+    },
+});
+
+
+```
+
+
 ## Configure the .env file
 Duplicate the .env.example file found in the project root and rename it to .env. This name is important as Docker reads it by default.
 

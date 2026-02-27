@@ -42,6 +42,47 @@ Debes decirle a tu sistema que `myapp.local` apunta a tu máquina. Edita tu arch
 127.0.0.1  myapp.local
 ```
 
+### Configurar laravel para servir archivos por https
+Si decides utilizar el proxy-https para nginx debes modificar algunos archivos de laravel de la siguiente manera:
+
+```bash
+# En el .env la variable de entorno APP_URL por tu nombre de dominio elegido
+APP_URL=https://myapp.local
+```
+
+```php
+// Forzar el schema HTTPS en el archivo AppServiceProvider.php
+// Hay muchas maneras de hacerlo, esta es una simple y efectiva.
+  public function boot(): void {
+        if (str_contains(config('app.url'), 'https://')) {
+            URL::forceScheme('https');
+        }
+    }
+```
+
+```js
+// Add the server configuration to your vite.config.js file
+import { defineConfig } from 'vite';
+import laravel from 'laravel-vite-plugin';
+import tailwindcss from '@tailwindcss/vite';
+
+export default defineConfig({
+    //...
+    server: {
+        watch: {
+            ignored: ['**/storage/framework/views/**'],
+        },
+        host: '0.0.0.0',
+        hmr: {
+          host: "myapp.local", // Tu host local custom
+      },
+        https: true,
+    },
+});
+
+
+```
+
 ## Configurar el archivo .env
 Duplica el archivo `.env.example` que encontrarás en la raíz de este proyecto y renombralo a `.env`, es importante que tenga este nombre ya que Docker lo lee por defecto sin necesidad de definir su path de forma manual en los archivos de configuracion.
 
