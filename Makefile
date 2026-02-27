@@ -5,7 +5,13 @@
 .PHONY: up down ps restart stop build build-nc destroy destroy-volumes
 
 up:
+	docker compose up
+
+up-detached:
 	docker compose up -d
+
+up-build:
+	docker compose up --build
 
 down:
 	docker compose down --remove-orphans

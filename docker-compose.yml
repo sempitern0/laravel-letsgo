@@ -15,6 +15,7 @@ x-services-volume: &services-volume
 
 services:
   laravel_app:
+    profiles: ["laravel"]
     # env_file: docker.env
     build:
       args:
@@ -45,6 +46,7 @@ services:
       - laravel-app-network
 
   queue_worker:
+    profiles: ["laravel"]
     image: "${CONTAINER_PREFIX:-app}_laravel_app_image"
     container_name: "${CONTAINER_PREFIX:-app}_queue_container"
     restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
@@ -61,6 +63,7 @@ services:
       - laravel-app-network
 
   scheduler:
+    profiles: ["laravel"]
     image: "${CONTAINER_PREFIX:-app}_laravel_app_image"
     container_name: "${CONTAINER_PREFIX:-app}_scheduler_container"
     restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
@@ -76,6 +79,7 @@ services:
       - laravel-app-network
 
   webserver:
+    profiles: ["laravel"]
     platform: linux/amd64
     image: nginx:alpine
     container_name: "${CONTAINER_PREFIX:-app}_webserver_container"
@@ -98,6 +102,7 @@ services:
       - laravel-app-network
 
   proxy_https:
+    profiles: ["laravel"]
     platform: linux/amd64
     image: nginx:alpine
     container_name: "${CONTAINER_PREFIX:-app}_proxy_https"
@@ -233,6 +238,7 @@ services:
       - laravel-app-network
 
   mailpit:
+    profiles: ["laravel"]
     image: axllent/mailpit:latest
     container_name: "${CONTAINER_PREFIX:-app}_mailpit"
     restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
