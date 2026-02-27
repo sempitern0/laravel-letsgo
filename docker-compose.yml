@@ -5,8 +5,9 @@ networks:
 x-logging: &default-logging
   driver: "json-file"
   options:
-    max-size: "10m"
-    max-file: "3"
+    max-size: "50m"
+    max-file: "5"
+    compress: "true"
 
 x-services-volume: &services-volume
   type: bind
@@ -19,7 +20,7 @@ services:
     # env_file: docker.env
     build:
       args:
-        - USER=${USER:-laravel_user}
+        - USER=${USER:-www-data}
         - USER_UID=${USER_UID:-1000} # workspaces images are designed to run as the unprivileged user - hence the UID 1000.
         - USER_GID=${USER_GID:-1000}
         - APPLICATION_FOLDER=${APPLICATION_FOLDER:-src}
@@ -29,6 +30,11 @@ services:
     container_name: "${CONTAINER_PREFIX:-app}_laravel"
     working_dir: /var/www # Working directory defined on the Dockerfile
     restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
+    healthcheck:
+      test: ["CMD-SHELL", "php-fpm-healthcheck || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
     logging: *default-logging
     volumes:
       - <<: *services-volume
@@ -98,6 +104,7 @@ services:
       start_period: 10s
     depends_on:
       - laravel_app
+
     networks:
       - laravel-app-network
 
@@ -180,6 +187,11 @@ services:
       POSTGRES_USER: "${DB_USER}"
       POSTGRES_PASSWORD: "${DB_USER_PASSWORD}"
       PGDATA: /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -196,6 +208,7 @@ services:
       PGADMIN_DEFAULT_EMAIL: "${DB_EMAIL}"
       PGADMIN_DEFAULT_PASSWORD: "${DB_USER_PASSWORD}"
       PGADMIN_LISTEN_PORT: 8080
+      PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: "True"
     depends_on:
       - postgres_db
     networks:
@@ -205,6 +218,10 @@ services:
     image: redis:8.6.0
     container_name: "${CONTAINER_PREFIX:-app}_redis"
     restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
     logging: *default-logging
     ports:
       - 7379:6379
